@@ -11,10 +11,8 @@ services:
       - 80:80
       - 8000:8000
     volumes:
-      - ./api/docker/vhosts:/etc/apache2/sites-enabled
-      - .:/api:cached
-#    env_file:
-#      - ./api/.env.local
+      - ./docker/vhosts:/etc/apache2/sites-enabled
+      - ./:/var/www
 
   db:
     image: mysql:5.7
@@ -37,8 +35,6 @@ services:
     image: djfarrelly/maildev:1.1.0
     depends_on:
       - db
-#    env_file:
-#      - ./api/.env.local
     ports:
       - 1080:80
 
