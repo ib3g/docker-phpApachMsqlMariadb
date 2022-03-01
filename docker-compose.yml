@@ -1,42 +1,52 @@
-version: "3.8"
+version: '3'
 services:
   php:
-    build: .
     environment:
-      DATABASE_URL: "mysql://root:team@db/team"
+      DATABASE_URL: "mysql://root:name@db/name"
     depends_on:
       - db
       - maildev
     ports:
       - 80:80
       - 8000:8000
+    build: ./api
+    container_name: name_php
     volumes:
-      - ./docker/vhosts:/etc/apache2/sites-enabled
-      - ./:/var/www
+      - ./api/docker/vhosts:/etc/apache2/sites-enabled
+      - ./api/docker/php.ini:/usr/local/etc/php/conf.d/99-php-custom.ini
+      - .:/name:cached
+    working_dir: /name/api
+    user: ${CUID}:${CGID}
+    env_file:
+      - ./api/.env.local
+
 
   db:
     image: mysql:5.7
-    volumes:
-      - db-data:/var/lib/mysql
+    container_name: name_db
     environment:
-      MYSQL_DATABASE: team
-      MYSQL_USER: team
-      MYSQL_PASSWORD: team
-      MYSQL_ROOT_PASSWORD: team
-
-  adminer:
-    image: adminer
-    depends_on:
-      - db
-    ports:
-      - 8080:8080
+      MYSQL_DATABASE: name
+      MYSQL_USER: name
+      MYSQL_PASSWORD: name
+      MYSQL_ROOT_PASSWORD: name
+    volumes:
+      - name-data:/var/lib/mysql
 
   maildev:
     image: djfarrelly/maildev:1.1.0
+    container_name: name_maildev
     depends_on:
       - db
+    env_file:
+      - ./api/.env.local
     ports:
       - 1080:80
 
+  adminer:
+    container_name: name_adminer
+    image: adminer
+    ports:
+      - 8080:8080
+
 volumes:
-  db-data:
+  name-data:
