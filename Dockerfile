@@ -1,6 +1,7 @@
 FROM php:8.1.7-apache
 
-RUN apt-get update && apt install -y --no-install-recommends locales apt-utils libzip-dev unzip zlib1g-dev libicu-dev libsqlite3-dev sqlite3 libpng-dev libjpeg-dev libfreetype6-dev git wget gnupg libmagickwand-dev
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends locales apt-utils git libicu-dev g++ libpng-dev unzip libxml2-dev libzip-dev zlib1g-dev libonig-dev libxslt-dev wget gnupg libjpeg-dev libmagickwand-dev libfreetype6;
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen  \
     &&  echo "fr_FR.UTF-8 UTF-8" >> /etc/locale.gen \
@@ -15,11 +16,13 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash \
 RUN docker-php-ext-configure \
             intl \
     &&  docker-php-ext-install \
-            pdo pdo_mysql opcache intl zip calendar dom mbstring gd xsl
+            pdo pdo_mysql intl zip calendar dom mbstring gd xsl
+
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+RUN apt-get install -y nodejs
 
 RUN pecl install apcu && docker-php-ext-enable apcu
-
-RUN npm install --global yarn
 
 CMD tail -f /dev/null
 
@@ -28,3 +31,5 @@ EXPOSE 8000
 
 WORKDIR /var/www/
 COPY . /var/www/
+
+CMD ["apache2-foreground"]
